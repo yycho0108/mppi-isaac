@@ -232,6 +232,7 @@ class IsaacGymWrapper:
             noise = (
                 np.random.normal(loc=0, scale=noise_sigma, size=3)
             )
+            asset_options.flip_visual_attachments = actor_cfg.flip_visual
             actor_asset = self.gym.create_box(
                 sim=self.sim,
                 width=actor_cfg.size[0] + noise[0],
@@ -277,9 +278,18 @@ class IsaacGymWrapper:
         if actor.noise_sigma_size:
             actor.color = np.random.rand(3)
 
-        self.gym.set_rigid_body_color(
-            env, handle, 0, gymapi.MESH_VISUAL_AND_COLLISION, gymapi.Vec3(*actor.color)
-        )
+        if isinstance(actor.color, str):
+            texture_handle = self.gym.create_texture_from_file(
+                    self.sim, actor.color)
+            # self.gym.set_rigid_body_color(
+            #     env, handle, 0, gymapi.MESH_VISUAL_AND_COLLISION, gymapi.Vec3(*actor.color)
+            # )
+            self.gym.set_rigid_body_texture(env, handle, 0, gymapi.MESH_VISUAL,
+                                            texture_handle)
+        else:
+            self.gym.set_rigid_body_color(
+                env, handle, 0, gymapi.MESH_VISUAL_AND_COLLISION, gymapi.Vec3(*actor.color)
+            )
         props = self.gym.get_actor_rigid_body_properties(env, handle)
         actor_mass_noise = np.random.uniform(-actor.noise_percentage_mass*actor.mass, actor.noise_percentage_mass*actor.mass)
         props[0].mass =  actor.mass + actor_mass_noise

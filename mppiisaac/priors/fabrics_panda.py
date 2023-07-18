@@ -97,7 +97,8 @@ def fabrics_panda(goal, urdf_file, max_num_obstacles=10):
     """
 
     # NOTE: overwrite urdf, because it has to be the bullet version to parse correctly by urdfFK
-    urdf_file = "/panda_bullet/panda.urdf"
+    # urdf_file = "/panda_bullet/panda.urdf"
+    urdf_file = "/franka_description/robots/franka_panda.urdf"
     urdf_abs_path = os.path.dirname(mppiisaac.__file__) + "/../assets/urdf/" + urdf_file
     with open(urdf_abs_path, "r") as file:
         urdf = file.read()

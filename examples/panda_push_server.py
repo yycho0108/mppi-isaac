@@ -90,7 +90,7 @@ def run_panda_robot(cfg: ExampleConfig):
                 [0.153, 0.462, 0.05, 0.181, 0.506, 0.37, 0.],]    # Baseline 2, E
     
     obj_ = obj_set[obj_index][:]
-    table_dim = [0.8, 1.0, 0.108]
+    table_dim = [1.5, 0.8, 0.8]
     table_pos = [0.5, 0., table_dim[-1]/2]
 
     additions = [
@@ -112,8 +112,10 @@ def run_panda_robot(cfg: ExampleConfig):
             "init_pos": table_pos,
             "fixed": True,
             "handle": None,
-            "color": [255 / 255, 120 / 255, 57 / 255],
+            # "color": [255 / 255, 120 / 255, 57 / 255],
+            "color": '/opt/isaacgym/assets/textures/texture_wood_brown_1033760.jpg',
             "friction": obj_[3],
+            'flip_visual': False,
         },
         # Add goal, 
         {
@@ -198,7 +200,7 @@ def run_panda_robot(cfg: ExampleConfig):
     data_time = []
     data_err = []
     n_trials = 0 
-    timeout = 20
+    timeout = 60
     rt_factor_seq = []
     data_rt = []
 
@@ -227,7 +229,7 @@ def run_panda_robot(cfg: ExampleConfig):
         # Monitoring
         # Evaluation metrics 
         # ------------------------------------------------------------------------
-        if count > 10:
+        if count > 96:
             block_pos = sim.root_state[:, block_index, :3]
             block_ort = sim.root_state[:, block_index, 3:7]
 

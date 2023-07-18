@@ -37,7 +37,7 @@ class Objective(object):
 
     
         # Task configration for comparison with baselines
-        self.ee_index = 9
+        self.ee_index = 10
         self.block_index = 1
         self.ort_goal_euler = torch.tensor([0, 0, 0], device=cfg.mppi.device)
         self.ee_hover_height = 0.14
