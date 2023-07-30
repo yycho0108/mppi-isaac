@@ -37,7 +37,7 @@ class MPPIisaacPlanner(object):
 
         actors = []
         for actor_name in cfg.actors:
-            with open(f'{os.path.dirname(mppiisaac.__file__)}/../conf/actors/{actor_name}.yaml') as f:
+            with open(f'{cfg.cfg_root}/actors/{actor_name}.yaml') as f:
                 actors.append(ActorWrapper(**yaml.load(f, Loader=SafeLoader)))
 
         print(actors)

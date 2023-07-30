@@ -16,7 +16,7 @@ import pytorch3d.transforms
 from urdfenvs.robots.generic_urdf import GenericUrdfReacher
 
 from mppiisaac.planner.mppi_isaac import MPPIisaacPlanner
-from mppiisaac.priors.fabrics_panda import FabricsPandaPrior
+# from mppiisaac.priors.fabrics_panda import FabricsPandaPrior
 from mppiisaac.utils.config_store import ExampleConfig
 
 class Objective(object):
@@ -126,7 +126,8 @@ def run_panda_robot(cfg: ExampleConfig):
 
     objective = Objective(cfg, cfg.mppi.device)
     if cfg.mppi.use_priors == True:
-        prior = FabricsPandaPrior(cfg)
+        # prior = FabricsPandaPrior(cfg)
+        raise ValueError('no such prior.')
     else:
         prior = None
     planner = zerorpc.Server(MPPIisaacPlanner(cfg, objective, prior))

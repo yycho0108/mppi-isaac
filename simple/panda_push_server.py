@@ -15,11 +15,11 @@ import torch
 
 from urdfenvs.robots.generic_urdf import GenericUrdfReacher
 
-from mppiisaac.utils.config_store import ExampleConfig
-from mppiisaac.planner.mppi_isaac import MPPIisaacPlanner
-from mppiisaac.planner.isaacgym_wrapper import IsaacGymWrapper, ActorWrapper
-import mppiisaac
-from mppiisaac.priors.fabrics_panda import FabricsPandaPrior
+from config_store import ExampleConfig
+from mppi_isaac import MPPIisaacPlanner
+from isaacgym_wrapper import IsaacGymWrapper, ActorWrapper
+# import mppiisaac
+# from mppiisaac.priors.fabrics_panda import FabricsPandaPrior
 
 from examples.panda_push_client import Objective
 
@@ -51,7 +51,7 @@ def run_panda_robot(cfg: ExampleConfig):
 
     actors=[]
     for actor_name in cfg.actors:
-        with open(f'{os.path.dirname(mppiisaac.__file__)}/../conf/actors/{actor_name}.yaml') as f:
+        with open(f'{cfg.cfg_root}/actors/{actor_name}.yaml') as f:
             actors.append(ActorWrapper(**yaml.load(f, Loader=SafeLoader)))
 
     sim = IsaacGymWrapper(
