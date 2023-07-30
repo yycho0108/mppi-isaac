@@ -15,9 +15,8 @@ import pytorch3d.transforms
 
 from urdfenvs.robots.generic_urdf import GenericUrdfReacher
 
-from mppiisaac.planner.mppi_isaac import MPPIisaacPlanner
-# from mppiisaac.priors.fabrics_panda import FabricsPandaPrior
-from mppiisaac.utils.config_store import ExampleConfig
+from mppi_isaac import MPPIisaacPlanner
+from config_store import ExampleConfig
 
 class Objective(object):
     def __init__(self, cfg, device):

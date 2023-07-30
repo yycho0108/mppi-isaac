@@ -1,6 +1,5 @@
-from mppiisaac.planner.isaacgym_wrapper import IsaacGymWrapper, ActorWrapper
-from mppiisaac.planner.mppi import MPPIPlanner
-import mppiisaac
+from isaacgym_wrapper import IsaacGymWrapper, ActorWrapper
+from mppi import MPPIPlanner
 from typing import Callable, Optional
 import io
 import os
