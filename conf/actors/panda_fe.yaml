@@ -1,0 +1,7 @@
+type: robot
+name: panda
+urdf_file: "franka_description/robots/franka_panda.urdf"
+ee_link: "panda_tool"
+fixed: True
+flip_visual: true
+gravity: false
