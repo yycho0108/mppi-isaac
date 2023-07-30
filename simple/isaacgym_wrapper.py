@@ -115,7 +115,8 @@ class IsaacGymWrapper:
         )
 
         if self.cfg.viewer:
-            self.viewer = self.gym.create_viewer(self.sim, gymapi.CameraProperties())
+            self.viewer = self.gym.create_viewer(
+                self.sim, gymapi.CameraProperties())
         else:
             self.viewer = None
 
@@ -137,7 +138,8 @@ class IsaacGymWrapper:
                 int(self.num_envs**0.5),
             )
 
-            for actor_asset, actor_cfg in zip(self.env_actor_assets, self.env_cfg):
+            for actor_asset, actor_cfg in zip(
+                    self.env_actor_assets, self.env_cfg):
                 actor_cfg.handle = self.create_actor(
                     env, env_idx, actor_asset, actor_cfg
                 )
@@ -169,9 +171,14 @@ class IsaacGymWrapper:
             self.ee_positions_buffer = []
 
         # helpfull slices
-        self.robot_indices = torch.tensor([i for i, a in enumerate(self.env_cfg) if a.type == "robot"], device="cuda:0")
+        self.robot_indices = torch.tensor(
+            [i for i, a in enumerate(self.env_cfg) if a.type == "robot"],
+            device="cuda:0")
 
-        self.obstacle_indices = torch.tensor([i for i, a in enumerate(self.env_cfg) if a.type in ["sphere", "box"]], device="cuda:0")
+        self.obstacle_indices = torch.tensor(
+            [i for i, a in enumerate(self.env_cfg)
+             if a.type in ["sphere", "box"]],
+            device="cuda:0")
 
         if self.ee_link_present:
             self.ee_positions = self.rigid_body_state[
@@ -185,19 +192,27 @@ class IsaacGymWrapper:
 
     @property
     def robot_positions(self):
-        return torch.index_select(self.root_state, 1, self.robot_indices)[:, :, 0:3]
+        return torch.index_select(
+            self.root_state, 1, self.robot_indices)[
+            :, :, 0: 3]
 
     @property
     def robot_velocities(self):
-        return torch.index_select(self.root_state, 1, self.robot_indices)[:, :, 7:10]
+        return torch.index_select(
+            self.root_state, 1, self.robot_indices)[
+            :, :, 7: 10]
 
     @property
     def obstacle_positions(self):
-        return torch.index_select(self.root_state, 1, self.obstacle_indices)[:, :, 0:3]
+        return torch.index_select(
+            self.root_state, 1, self.obstacle_indices)[
+            :, :, 0: 3]
 
     @property
     def robot_velocities(self):
-        return torch.index_select(self.root_state, 1, self.obstacle_indices)[:, :, 7:10]
+        return torch.index_select(
+            self.root_state, 1, self.obstacle_indices)[
+            :, :, 7: 10]
 
     def stop_sim(self):
         if self.viewer:
@@ -213,7 +228,7 @@ class IsaacGymWrapper:
     def load_asset(self, actor_cfg):
         asset_options = gymapi.AssetOptions()
         asset_options.fix_base_link = actor_cfg.fixed
-        
+
         if actor_cfg.type == "robot":
             asset_file = "urdf/" + actor_cfg.urdf_file
             asset_options.flip_visual_attachments = actor_cfg.flip_visual
@@ -237,7 +252,7 @@ class IsaacGymWrapper:
                 sim=self.sim,
                 width=actor_cfg.size[0] + noise[0],
                 height=actor_cfg.size[1] + noise[1],
-                depth=actor_cfg.size[2] + noise[2], 
+                depth=actor_cfg.size[2] + noise[2],
                 options=asset_options,
             )
         elif actor_cfg.type == "sphere":
@@ -272,7 +287,7 @@ class IsaacGymWrapper:
             asset=asset,
             pose=pose,
             name=actor.name,
-            group=env_idx if actor.collision else env_idx+self.num_envs,
+            group=env_idx if actor.collision else env_idx + self.num_envs,
         )
 
         if actor.noise_sigma_size:
@@ -280,7 +295,7 @@ class IsaacGymWrapper:
 
         if isinstance(actor.color, str):
             texture_handle = self.gym.create_texture_from_file(
-                    self.sim, actor.color)
+                self.sim, actor.color)
             # self.gym.set_rigid_body_color(
             #     env, handle, 0, gymapi.MESH_VISUAL_AND_COLLISION, gymapi.Vec3(*actor.color)
             # )
@@ -288,15 +303,22 @@ class IsaacGymWrapper:
                                             texture_handle)
         else:
             self.gym.set_rigid_body_color(
-                env, handle, 0, gymapi.MESH_VISUAL_AND_COLLISION, gymapi.Vec3(*actor.color)
-            )
+                env,
+                handle,
+                0,
+                gymapi.MESH_VISUAL_AND_COLLISION,
+                gymapi.Vec3(
+                    *actor.color))
         props = self.gym.get_actor_rigid_body_properties(env, handle)
-        actor_mass_noise = np.random.uniform(-actor.noise_percentage_mass*actor.mass, actor.noise_percentage_mass*actor.mass)
-        props[0].mass =  actor.mass + actor_mass_noise
+        actor_mass_noise = np.random.uniform(
+            -actor.noise_percentage_mass * actor.mass,
+            actor.noise_percentage_mass * actor.mass)
+        props[0].mass = actor.mass + actor_mass_noise
         self.gym.set_actor_rigid_body_properties(env, handle, props)
 
         body_names = self.gym.get_actor_rigid_body_names(env, handle)
-        body_to_shape = self.gym.get_actor_rigid_body_shape_indices(env, handle)
+        body_to_shape = self.gym.get_actor_rigid_body_shape_indices(
+            env, handle)
         caster_shapes = [
             b.start
             for body_idx, b in enumerate(body_to_shape)
@@ -306,9 +328,11 @@ class IsaacGymWrapper:
 
         props = self.gym.get_actor_rigid_shape_properties(env, handle)
         for i, p in enumerate(props):
-            actor_friction_noise = np.random.uniform(-actor.noise_percentage_friction*actor.friction, actor.noise_percentage_friction*actor.friction)
+            actor_friction_noise = np.random.uniform(
+                -actor.noise_percentage_friction * actor.friction,
+                actor.noise_percentage_friction * actor.friction)
             p.friction = actor.friction + actor_friction_noise
-            p.torsion_friction = np.random.uniform(0.001, 0.01) 
+            p.torsion_friction = np.random.uniform(0.001, 0.01)
             p.rolling_friction = actor.friction + actor_friction_noise
 
             if i in caster_shapes:
@@ -319,11 +343,11 @@ class IsaacGymWrapper:
         self.gym.set_actor_rigid_shape_properties(env, handle, props)
 
         if actor.type == "robot":
-            # TODO: Currently the robot_rigid_body_ee_idx is only supported for a single robot case.
+            # TODO: Currently the robot_rigid_body_ee_idx is only supported for
+            # a single robot case.
             if actor.ee_link:
                 self.robot_rigid_body_ee_idx = self.gym.find_actor_rigid_body_index(
-                    env, handle, actor.ee_link, gymapi.IndexDomain.DOMAIN_ENV
-                )
+                    env, handle, actor.ee_link, gymapi.IndexDomain.DOMAIN_ENV)
 
             props = self.gym.get_asset_dof_properties(asset)
             props["driveMode"].fill(gymapi.DOF_MODE_VEL)
@@ -345,7 +369,8 @@ class IsaacGymWrapper:
         self.gym.set_dof_state_tensor(self.sim, gymtorch.unwrap_tensor(state))
 
     def set_dof_velocity_target_tensor(self, u):
-        self.gym.set_dof_velocity_target_tensor(self.sim, gymtorch.unwrap_tensor(u))
+        self.gym.set_dof_velocity_target_tensor(
+            self.sim, gymtorch.unwrap_tensor(u))
 
     def _ik(self, actor, u):
         r = actor.wheel_radius
@@ -372,7 +397,8 @@ class IsaacGymWrapper:
         for actor in self.env_cfg:
             if actor.type != "robot":
                 continue
-            actor_dof_count = self.gym.get_actor_dof_count(self.envs[0], actor.handle)
+            actor_dof_count = self.gym.get_actor_dof_count(
+                self.envs[0], actor.handle)
             dof_dict = self.gym.get_actor_dof_dict(self.envs[0], actor.handle)
             for i in range(actor_dof_count):
                 if (
@@ -380,9 +406,9 @@ class IsaacGymWrapper:
                     and i >= actor_dof_count - actor.wheel_count
                 ):
                     u_ik = self._ik(
-                        actor, u_desired[:, u_desired_idx : u_desired_idx + 2]
+                        actor, u_desired[:, u_desired_idx: u_desired_idx + 2]
                     )
-                    u[:, u_dof_idx : u_dof_idx + actor.wheel_count] = u_ik
+                    u[:, u_dof_idx: u_dof_idx + actor.wheel_count] = u_ik
                     u_desired_idx += 2
                     u_dof_idx += actor.wheel_count
                     break
@@ -391,7 +417,8 @@ class IsaacGymWrapper:
                     u_desired_idx += 1
                     u_dof_idx += 1
 
-        self.gym.set_dof_velocity_target_tensor(self.sim, gymtorch.unwrap_tensor(u))
+        self.gym.set_dof_velocity_target_tensor(
+            self.sim, gymtorch.unwrap_tensor(u))
 
     def reset_robot_state(self, q, qdot):
         """
@@ -405,15 +432,16 @@ class IsaacGymWrapper:
             if actor.type != "robot":
                 continue
 
-            actor_dof_count = self.gym.get_actor_dof_count(self.envs[0], actor.handle)
+            actor_dof_count = self.gym.get_actor_dof_count(
+                self.envs[0], actor.handle)
 
             if actor.differential_drive:
                 actor_q_count = actor_dof_count - (actor.wheel_count - 3)
             else:
                 actor_q_count = actor_dof_count
 
-            actor_q = q[q_idx : q_idx + actor_q_count]
-            actor_qdot = qdot[q_idx : q_idx + actor_q_count]
+            actor_q = q[q_idx: q_idx + actor_q_count]
+            actor_qdot = qdot[q_idx: q_idx + actor_q_count]
 
             if actor.differential_drive:
                 pos = actor_q[:3]
@@ -431,7 +459,8 @@ class IsaacGymWrapper:
 
             q_idx += actor_q_count
 
-        dof_state_tensor = torch.tensor(dof_state).type(torch.float32).to("cuda:0")
+        dof_state_tensor = torch.tensor(
+            dof_state).type(torch.float32).to("cuda:0")
 
         dof_state_tensor = dof_state_tensor.repeat(self.num_envs, 1)
         self.set_dof_state_tensor(dof_state_tensor)
@@ -487,7 +516,8 @@ class IsaacGymWrapper:
         ]
 
         self.root_state[:, handle, :2] = torch.tensor(pos[:2], device="cuda:0")
-        self.root_state[:, handle, 3:7] = torch.tensor(orientation, device="cuda:0")
+        self.root_state[:, handle, 3:7] = torch.tensor(
+            orientation, device="cuda:0")
         self.root_state[:, handle, 7:10] = torch.tensor(vel, device="cuda:0")
 
     def update_root_state_tensor_by_obstacles(self, obstacles):
@@ -505,9 +535,9 @@ class IsaacGymWrapper:
             name = f"{o_type}{i}"
             try:
                 obst_idx = [
-                    idx for idx, actor in enumerate(self.env_cfg) if actor.name == name
-                ][0]
-            except:
+                    idx for idx, actor in enumerate(
+                        self.env_cfg) if actor.name == name][0]
+            except BaseException:
                 self.env_cfg.append(
                     ActorWrapper(
                         **{
@@ -526,8 +556,10 @@ class IsaacGymWrapper:
                 [*pos, 0, 0, 0, 1, *vel, 0, 0, 0], device="cuda:0"
             )
 
-            # Note: reset simulator if size changed, because this cannot be done at runtime.
-            if not all([a == b for a, b in zip(o_size, self.env_cfg[obst_idx].size)]):
+            # Note: reset simulator if size changed, because this cannot be
+            # done at runtime.
+            if not all([a == b for a, b in zip(
+                    o_size, self.env_cfg[obst_idx].size)]):
                 env_cfg_changed = True
                 self.env_cfg[obst_idx].size = o_size
 

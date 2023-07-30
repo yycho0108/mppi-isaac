@@ -30,7 +30,8 @@ class MPPIisaacPlanner(object):
         dynamics, running_cost, and terminal_cost
     """
 
-    def __init__(self, cfg, objective: Callable, prior: Optional[Callable] = None):
+    def __init__(self, cfg, objective: Callable,
+                 prior: Optional[Callable] = None):
         self.cfg = cfg
         self.objective = objective
 
@@ -60,8 +61,10 @@ class MPPIisaacPlanner(object):
             prior=self.prior,
         )
 
-        # Note: place_holder variable to pass to mppi so it doesn't complain, while the real state is actually the isaacgym simulator itself.
-        self.state_place_holder = torch.zeros((self.cfg.mppi.num_samples, self.cfg.nx))
+        # Note: place_holder variable to pass to mppi so it doesn't complain,
+        # while the real state is actually the isaacgym simulator itself.
+        self.state_place_holder = torch.zeros(
+            (self.cfg.mppi.num_samples, self.cfg.nx))
 
     def dynamics(self, _, u, t=None):
         # Note: normally mppi passes the state as the first parameter in a dynamics call, but using isaacgym the state is already saved in the simulator itself, so we ignore it.
@@ -74,7 +77,10 @@ class MPPIisaacPlanner(object):
         return (self.state_place_holder, u)
 
     def running_cost(self, _):
-        # Note: again normally mppi passes the state as a parameter in the running cost call, but using isaacgym the state is already saved and accesible in the simulator itself, so we ignore it and pass a handle to the simulator.
+        # Note: again normally mppi passes the state as a parameter in the
+        # running cost call, but using isaacgym the state is already saved and
+        # accesible in the simulator itself, so we ignore it and pass a handle
+        # to the simulator.
         return self.objective.compute_cost(self.sim)
 
     def compute_action(self, q, qdot, obst=None, obst_tensor=None):
@@ -101,8 +107,12 @@ class MPPIisaacPlanner(object):
         self.sim.root_state[:] = bytes_to_torch(root_state_tensor)
         self.sim.rigid_body_state[:] = bytes_to_torch(rigid_body_state_tensor)
 
-        self.sim.gym.set_dof_state_tensor(self.sim.sim, gymtorch.unwrap_tensor(self.sim.dof_state))
-        self.sim.gym.set_actor_root_state_tensor(self.sim.sim, gymtorch.unwrap_tensor(self.sim.root_state))
+        self.sim.gym.set_dof_state_tensor(
+            self.sim.sim, gymtorch.unwrap_tensor(
+                self.sim.dof_state))
+        self.sim.gym.set_actor_root_state_tensor(
+            self.sim.sim, gymtorch.unwrap_tensor(
+                self.sim.root_state))
 
     def command(self):
         return torch_to_bytes(self.mppi.command(self.state_place_holder))
@@ -112,4 +122,3 @@ class MPPIisaacPlanner(object):
 
     def get_rollouts(self):
         return torch_to_bytes(torch.stack(self.sim.ee_positions_buffer))
-
