@@ -1,4 +1,6 @@
 
+from isaacgym import gymtorch
+
 import os
 import time
 import numpy as np
