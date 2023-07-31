@@ -21,7 +21,7 @@ from isaacgym_wrapper import IsaacGymWrapper, ActorWrapper
 # import mppiisaac
 # from mppiisaac.priors.fabrics_panda import FabricsPandaPrior
 
-from examples.panda_push_client import Objective
+from panda_push_client import Objective
 
 
 def torch_to_bytes(t: torch.Tensor) -> bytes:

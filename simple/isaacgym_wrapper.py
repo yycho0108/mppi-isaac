@@ -235,7 +235,7 @@ class IsaacGymWrapper:
             asset_options.disable_gravity = not actor_cfg.gravity
             actor_asset = self.gym.load_asset(
                 sim=self.sim,
-                rootpath=f"{file_path}/../../assets",
+                rootpath=f"{file_path}/../assets",
                 filename=asset_file,
                 options=asset_options,
             )

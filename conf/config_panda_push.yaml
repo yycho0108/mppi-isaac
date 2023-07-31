@@ -9,3 +9,4 @@ actors: ['panda_fe']
 initial_actor_positions: [[0.0, 0.0, 0.8]]
 
 nx: 14
+cfg_root: '/input/mppi-isaac/conf/'
